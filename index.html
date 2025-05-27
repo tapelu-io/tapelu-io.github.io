@@ -12,11 +12,15 @@
         header p { margin: 0; color: #7f8c8d; font-size: 1.1em; }
         h2 { color: #34495e; border-bottom: 2px solid #3498db; padding-bottom: 0.3em; margin-top: 2em; }
         p, li { color: #555; }
-        ul { padding-left: 20px; }
-        .install-command, .usage-example { background-color: #ecf0f1; padding: 1em 1.5em; border: 1px solid #e0e0e0; border-radius: 5px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; white-space: pre-wrap; word-wrap: break-word; margin: 1em 0; font-size: 0.95em; color: #2c3e50; }
+        ul { padding-left: 20px; list-style: disc; }
+        .command-block { margin: 1em 0; }
+        .install-command, .usage-example { background-color: #ecf0f1; padding: 1em 1.5em; border: 1px solid #e0e0e0; border-radius: 5px 5px 0 0; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; white-space: pre-wrap; word-wrap: break-word; font-size: 0.95em; color: #2c3e50; position: relative; margin-bottom:0; }
         .install-command::before { content: "$ "; color: #95a5a6; }
+        .copy-button { display: block; width: 100%; background-color: #dde4e6; border: 1px solid #e0e0e0; border-top: none; color: #34495e; padding: 0.5em; text-align: center; cursor: pointer; border-radius: 0 0 5px 5px; font-size: 0.9em; transition: background-color 0.2s ease; }
+        .copy-button:hover { background-color: #c8d0d2; }
         .note { background-color: #fff9e6; border-left: 4px solid #f1c40f; padding: 1em; margin: 1.5em 0; border-radius: 4px;}
         .note strong { color: #c0392b; }
+        .disclaimer { font-size: 0.85em; color: #7f8c8d; margin-top: 2em; }
         a { color: #3498db; text-decoration: none; }
         a:hover { text-decoration: underline; }
         footer { text-align: center; margin-top: 3em; padding-top: 1.5em; border-top: 1px solid #eee; font-size: 0.9em; color: #95a5a6; }
@@ -32,14 +36,20 @@
         <section>
             <h2>Quick Install / Update</h2>
             <p>Run the following command in your terminal. It will download and install the latest stable version of Wine Runner Suite:</p>
-            <p class="install-command">curl -sSL https://tapelu-io.github.io/install.sh | sudo bash</p>
+            <div class="command-block">
+                <p class="install-command" id="installCmdLatest">curl -sSL https://tapelu-io.github.io/install.sh | sudo bash</p>
+                <button class="copy-button" onclick="copyToClipboard('installCmdLatest')">Copy Command</button>
+            </div>
             
             <div class="note">
-                <p><strong>Note:</strong> This command requires <code>sudo</code> privileges to install the package and its dependencies system-wide. You will be prompted for your password if necessary. The script will attempt to install dependencies like Wine (from WineHQ if possible), Winetricks, etc.</p>
+                <p><strong>Note:</strong> This command requires <code>sudo</code> privileges to install the package and its dependencies system-wide. The script will attempt to install dependencies like Wine (from WineHQ if possible), Winetricks, etc.</p>
             </div>
 
-            <p>To install a specific version (e.g., <code>v1.1.3</code>, check available tags on the <a href="https://github.com/tapelu-io/debivi/releases" target="_blank">releases page</a>):</p>
-            <p class="install-command">curl -sSL https://tapelu-io.github.io/install.sh | sudo bash -s -- --version v1.1.3</p>
+            <p>To install a specific version (e.g., <code>v1.1.3</code>, check available tags on the <a href="https://github.com/tapelu-io/debivi/releases" target="_blank" rel="noopener noreferrer">releases page</a>):</p>
+            <div class="command-block">
+                <p class="install-command" id="installCmdSpecific">curl -sSL https://tapelu-io.github.io/install.sh | sudo bash -s -- --version v1.1.3</p>
+                <button class="copy-button" onclick="copyToClipboard('installCmdSpecific')">Copy Command</button>
+            </div>
         </section>
 
         <section>
@@ -47,11 +57,11 @@
             <p>Wine Runner Suite simplifies running Windows applications and games on Debian, Ubuntu, and their derivatives. It provides:</p>
             <ul>
                 <li>A unified <code>wine-runner</code> command-line tool.</li>
-                <li>Automatic Wine prefix initialization with essential components like corefonts, vcrun2022, and an attempt to install Microsoft Edge WebView2.</li>
-                <li>Easy installation of <code>.exe</code> and <code>.msi</code> files with an option to auto-run the application post-install.</li>
-                <li>An offer to create Linux desktop shortcuts for installed Windows applications.</li>
-                <li>Configuration via <code>/etc/wine-runner/wine-runner.conf</code> for CPU affinity and extra Winetricks verbs.</li>
-                <li>Seamless double-click integration for <code>.exe</code> and <code>.msi</code> files.</li>
+                <li>Automatic Wine prefix initialization with essential components (corefonts, vcrun2022, and an attempt to install Microsoft Edge WebView2 via Winetricks).</li>
+                <li>Easy installation of <code>.exe</code> and <code>.msi</code> files, with an option to auto-run the application post-install when using the <code>--install</code> flag.</li>
+                <li>An offer to create Linux desktop shortcuts for applications installed via the <code>--install</code> mode.</li>
+                <li>Configuration via <code>/etc/wine-runner/wine-runner.conf</code> for CPU affinity and additional Winetricks verbs.</li>
+                <li>Double-click integration for <code>.exe</code> and <code>.msi</code> files for intuitive use.</li>
             </ul>
         </section>
 
@@ -59,20 +69,84 @@
             <h2>Basic Usage</h2>
             <p>Once installed, you can use it from the command line:</p>
             <p><strong>Run an existing application:</strong></p>
-            <p class="usage-example">wine-runner /path/to/your/application.exe</p>
-            <p><strong>Install an application (and attempt to run it + create shortcut):</strong></p>
-            <p class="usage-example">wine-runner --install /path/to/your/setup.exe</p>
-            <p class="usage-example">wine-runner --install /path/to/your/installer.msi</p>
-            <p>Alternatively, just double-click <code>.exe</code> or <code>.msi</code> files in your file manager!</p>
+            <div class="command-block">
+                <p class="usage-example" id="usageCmdRun">wine-runner /path/to/your/application.exe</p>
+                <button class="copy-button" onclick="copyToClipboard('usageCmdRun')">Copy Command</button>
+            </div>
+            <p><strong>Install an application (attempts to run post-install & offers shortcut):</strong></p>
+            <div class="command-block">
+                <p class="usage-example" id="usageCmdInstallExe">wine-runner --install /path/to/your/setup.exe</p>
+                <button class="copy-button" onclick="copyToClipboard('usageCmdInstallExe')">Copy Command</button>
+            </div>
+            <div class="command-block">
+                <p class="usage-example" id="usageCmdInstallMsi">wine-runner --install /path/to/your/installer.msi</p>
+                <button class="copy-button" onclick="copyToClipboard('usageCmdInstallMsi')">Copy Command</button>
+            </div>
+            <p>Alternatively, simply double-click <code>.exe</code> or <code>.msi</code> files in your file manager!</p>
             <p>For more options, run:</p>
-            <p class="usage-example">wine-runner --help</p>
+            <div class="command-block">
+                <p class="usage-example" id="usageCmdHelp">wine-runner --help</p>
+                <button class="copy-button" onclick="copyToClipboard('usageCmdHelp')">Copy Command</button>
+            </div>
+        </section>
+
+        <section>
+            <h2>License & Disclaimer</h2>
+            <p>Wine Runner Suite (this installer script and the packaged helper tools) is developed by tapelu-io and is licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT License</a>.</p>
+            <p class="disclaimer">This software facilitates the installation and use of third-party software such as Wine, Winetricks, Microsoft Edge WebView2 (via Winetricks), and various Windows applications. These third-party components are subject to their own licenses and terms of service. Wine Runner Suite does not bundle or redistribute these components directly but assists in their setup within a Wine environment.</p>
         </section>
         
         <footer>
-            <p>Wine Runner Suite - Project code and releases on <a href="https://github.com/tapelu-io/debivi" target="_blank">GitHub (debivi)</a>.</p>
-            <p>This installation page is hosted at <a href="https://github.com/tapelu-io/tapelu-io.github.io" target="_blank">tapelu-io.github.io</a>.</p>
-            <p>Created by tapelu-io. Licensed under the MIT License.</p>
+            <p>Wine Runner Suite - Project code & releases on <a href="https://github.com/tapelu-io/debivi" target="_blank" rel="noopener noreferrer">GitHub (debivi)</a>.</p>
+            <p>This installation page is hosted at <a href="https://github.com/tapelu-io/tapelu-io.github.io" target="_blank" rel="noopener noreferrer">tapelu-io.github.io</a>.</p>
         </footer>
     </div>
+
+    <script>
+        function copyToClipboard(elementId) {
+            const textToCopy = document.getElementById(elementId).innerText;
+            // For modern browsers:
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textToCopy.startsWith('$ ') ? textToCopy.substring(2) : textToCopy)
+                    .then(() => {
+                        alert('Command copied to clipboard!');
+                    })
+                    .catch(err => {
+                        console.warn('Failed to copy with navigator.clipboard: ', err);
+                        fallbackCopyTextToClipboard(textToCopy); // Fallback for older browsers or if permission denied
+                    });
+            } else { // Fallback for older browsers
+                fallbackCopyTextToClipboard(textToCopy);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            // Remove leading "$ " if present from shell commands
+            textArea.value = text.startsWith('$ ') ? text.substring(2) : text; 
+            
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    alert('Command copied to clipboard!');
+                } else {
+                    alert('Failed to copy command. Please copy manually.');
+                }
+            } catch (err) {
+                alert('Failed to copy command. Please copy manually.');
+                console.warn('Fallback copy failed: ', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
 </body>
 </html>
