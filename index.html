@@ -313,10 +313,7 @@
         const copyBtnText = document.getElementById('copyBtnText');
 
         copyButton.addEventListener('click', () => {
-            const textToCopy = installCommandText; // Already includes the "$ " prefix if you want it, or remove if not.
-                                                 // For user experience, copying just the command without "$ " is often better.
-            const commandOnly = textToCopy.startsWith('$ ') ? textToCopy.substring(2) : textToCopy;
-
+            const commandOnly = installCommandText.startsWith('$ ') ? installCommandText.substring(2) : installCommandText;
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(commandOnly)
@@ -347,10 +344,10 @@
         function fallbackCopyTextToClipboard(text) {
             const textArea = document.createElement("textarea");
             textArea.value = text; 
-            textArea.style.position = "fixed"; // Prevent scrolling to bottom of page in MS Edge.
+            textArea.style.position = "fixed"; 
             textArea.style.top = "0";
             textArea.style.left = "0";
-            textArea.style.opacity = "0"; // Hide the textarea
+            textArea.style.opacity = "0"; 
 
             document.body.appendChild(textArea);
             textArea.focus();
