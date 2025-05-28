@@ -5,25 +5,235 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wine Runner Suite - Run Windows Apps on Linux Easily</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; line-height: 1.7; margin: 0; padding: 0; color: #333; background-color: #f9f9f9; }
-        .container { max-width: 800px; margin: 2em auto; padding: 2em; background-color: #fff; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
-        header { text-align: center; margin-bottom: 2.5em; padding-bottom: 1.5em; border-bottom: 1px solid #eee; }
-        header h1 { margin: 0 0 0.2em 0; color: #2c3e50; font-size: 2.5em; }
-        header p { margin: 0; color: #7f8c8d; font-size: 1.1em; }
-        h2 { color: #34495e; border-bottom: 2px solid #3498db; padding-bottom: 0.3em; margin-top: 2em; }
-        p, li { color: #555; }
-        ul { padding-left: 20px; list-style: disc; }
-        .command-block { margin: 1em 0; }
-        .install-command, .usage-example { background-color: #ecf0f1; padding: 1em 1.5em; border: 1px solid #e0e0e0; border-radius: 5px 5px 0 0; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; white-space: pre-wrap; word-wrap: break-word; font-size: 0.95em; color: #2c3e50; position: relative; margin-bottom:0; }
-        .install-command::before { content: "$ "; color: #95a5a6; }
-        .copy-button { display: block; width: 100%; background-color: #dde4e6; border: 1px solid #e0e0e0; border-top: none; color: #34495e; padding: 0.5em; text-align: center; cursor: pointer; border-radius: 0 0 5px 5px; font-size: 0.9em; transition: background-color 0.2s ease; }
-        .copy-button:hover { background-color: #c8d0d2; }
-        .note { background-color: #fff9e6; border-left: 4px solid #f1c40f; padding: 1em; margin: 1.5em 0; border-radius: 4px;}
-        .note strong { color: #c0392b; }
-        .disclaimer { font-size: 0.85em; color: #7f8c8d; margin-top: 2em; }
-        a { color: #3498db; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        footer { text-align: center; margin-top: 3em; padding-top: 1.5em; border-top: 1px solid #eee; font-size: 0.9em; color: #95a5a6; }
+        :root {
+            --color-primary: #3498db;
+            --color-primary-dark: #2980b9;
+            --color-secondary: #2c3e50;
+            --color-text: #333;
+            --color-text-light: #555;
+            --color-background: #f4f6f8;
+            --color-surface: #ffffff;
+            --color-border: #e0e0e0;
+            --color-success: #2ecc71;
+            --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            --font-family-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            --border-radius: 6px;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.07);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family-sans);
+            line-height: 1.7;
+            color: var(--color-text);
+            background-color: var(--color-background);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1em;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            margin: 2em auto;
+            background-color: var(--color-surface);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            overflow: hidden; /* Ensures child shadows don't break rounded corners */
+        }
+
+        header {
+            background-color: var(--color-secondary);
+            color: var(--color-surface);
+            padding: 2.5em 2em;
+            text-align: center;
+        }
+
+        header h1 {
+            margin-bottom: 0.2em;
+            font-size: 2.6em;
+            font-weight: 600;
+        }
+
+        header p {
+            font-size: 1.15em;
+            opacity: 0.9;
+        }
+
+        main {
+            padding: 2em;
+        }
+
+        section {
+            margin-bottom: 2.5em;
+        }
+
+        h2 {
+            color: var(--color-secondary);
+            font-size: 1.8em;
+            font-weight: 600;
+            border-bottom: 2px solid var(--color-primary);
+            padding-bottom: 0.4em;
+            margin-bottom: 0.8em;
+        }
+
+        p, li {
+            color: var(--color-text-light);
+            margin-bottom: 0.8em;
+        }
+
+        ul {
+            padding-left: 25px;
+            list-style: none;
+        }
+        ul li::before {
+            content: "•";
+            color: var(--color-primary);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        .command-wrapper {
+            margin: 1.5em 0;
+            background-color: #2d3748; /* Dark background for command */
+            color: #e2e8f0; /* Light text for command */
+            border-radius: var(--border-radius);
+            padding: 1.2em 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            flex-wrap: wrap; /* Allow button to wrap on small screens */
+        }
+
+        .install-command {
+            font-family: var(--font-family-mono);
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 0.95em;
+            line-height: 1.5;
+            flex-grow: 1;
+            margin-right: 1em; /* Space before button */
+        }
+        .install-command::before {
+            content: "$ ";
+            color: #90cdf4; /* Lighter blue for prompt */
+            opacity: 0.8;
+        }
+
+        .copy-button {
+            background-color: var(--color-primary);
+            color: var(--color-surface);
+            border: none;
+            padding: 0.6em 0.9em;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            min-width: 100px; /* Ensure enough space for "Copied!" */
+            justify-content: center;
+        }
+        .copy-button:hover {
+            background-color: var(--color-primary-dark);
+        }
+        .copy-button:active {
+            transform: translateY(1px);
+        }
+        .copy-button .icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        .copy-button.copied {
+            background-color: var(--color-success);
+        }
+
+        .note {
+            background-color: #eef6fc; /* Lighter blue */
+            border-left: 5px solid var(--color-primary);
+            padding: 1.2em 1.5em;
+            margin: 1.5em 0;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+        .note strong {
+            color: var(--color-secondary);
+            font-weight: 600;
+        }
+
+        .usage-example-block {
+            background-color: #f9fafb;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            margin-bottom: 1em;
+            box-shadow: var(--shadow-sm);
+        }
+        .usage-example {
+            padding: 0.8em 1.2em;
+            font-family: var(--font-family-mono);
+            font-size: 0.9em;
+            color: var(--color-secondary);
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .usage-example::before {
+            content: "$ ";
+            opacity: 0.6;
+        }
+
+        a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        a:hover {
+            text-decoration: underline;
+            color: var(--color-primary-dark);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2em;
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            border-top: 1px solid var(--color-border);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2em; }
+            header p { font-size: 1em; }
+            h2 { font-size: 1.5em; }
+            main { padding: 1.5em; }
+            .command-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .install-command {
+                margin-right: 0;
+                margin-bottom: 0.8em;
+            }
+            .copy-button {
+                width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+             header { padding: 2em 1.5em; }
+             main { padding: 1em; }
+        }
     </style>
 </head>
 <body>
@@ -33,102 +243,114 @@
             <p>Effortlessly run Windows applications on your Debian-based Linux system!</p>
         </header>
 
-        <section>
-            <h2>Quick Install / Update</h2>
-            <p>Run the following command in your terminal. It will download and install the latest stable version of Wine Runner Suite:</p>
-            <div class="command-block">
-                <p class="install-command" id="installCmdLatest">curl -sSL https://tapelu-io.github.io/install.sh | sudo bash</p>
-                <button class="copy-button" onclick="copyToClipboard('installCmdLatest')">Copy Command</button>
-            </div>
-            
-            <div class="note">
-                <p><strong>Note:</strong> This command requires <code>sudo</code> privileges to install the package and its dependencies system-wide. The script will attempt to install dependencies like Wine (from WineHQ if possible), Winetricks, etc.</p>
-            </div>
+        <main>
+            <section id="install">
+                <h2>Quick Install / Update</h2>
+                <p>Run the following command in your terminal. It will download and install the latest stable version of Wine Runner Suite:</p>
+                <div class="command-wrapper">
+                    <span class="install-command" id="installCmdLatest">curl -sSL https://tapelu-io.github.io/install.sh | sudo bash</span>
+                    <button class="copy-button" id="copyBtnLatest" aria-label="Copy install command">
+                        <svg class="icon" id="iconCopy" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d="M15 2H9C7.89543 2 7 2.89543 7 4V5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19H11C12.1046 19 13 18.1046 13 17V16H15C16.1046 16 17 15.1046 17 14V4C17 2.89543 16.1046 2 15 2ZM11 17H5V7H11V17ZM15 14H13V7C13 6.44772 13.4477 6 14 6H15V4H9V5H7V4C7 3.44772 7.44772 3 8 3H15C15.5523 3 16 3.44772 16 4V14C16 13.4477 15.5523 14 15 14Z"/>
+                        </svg>
+                        <svg class="icon" id="iconCopied" viewBox="0 0 20 20" fill="currentColor" style="display: none;" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span id="copyBtnText">Copy</span>
+                    </button>
+                </div>
+                
+                <div class="note">
+                    <p><strong>Note:</strong> This command requires <code>sudo</code> privileges to install the package and its dependencies system-wide. The script attempts to install dependencies like Wine (from WineHQ if possible) and Winetricks.</p>
+                </div>
+            </section>
 
-            <p>To install a specific version (e.g., <code>v1.1.3</code>, check available tags on the <a href="https://github.com/tapelu-io/debivi/releases" target="_blank" rel="noopener noreferrer">releases page</a>):</p>
-            <div class="command-block">
-                <p class="install-command" id="installCmdSpecific">curl -sSL https://tapelu-io.github.io/install.sh | sudo bash -s -- --version v1.1.3</p>
-                <button class="copy-button" onclick="copyToClipboard('installCmdSpecific')">Copy Command</button>
-            </div>
-        </section>
+            <section id="about">
+                <h2>What is Wine Runner Suite?</h2>
+                <p>Wine Runner Suite simplifies running Windows applications and games on Debian, Ubuntu, and their derivatives. It provides:</p>
+                <ul>
+                    <li>A unified <code>wine-runner</code> command-line tool.</li>
+                    <li>Automatic Wine prefix initialization with essential components (corefonts, vcrun2022, WebView2 attempt, font substitutions).</li>
+                    <li>Easy installation of <code>.exe</code> and <code>.msi</code> files with an option to auto-run and create desktop shortcuts via the <code>--install</code> flag.</li>
+                    <li>Configuration via <code>/etc/wine-runner/wine-runner.conf</code> for CPU affinity and extra Winetricks verbs.</li>
+                    <li>Seamless double-click integration for <code>.exe</code> and <code>.msi</code> files for intuitive use.</li>
+                </ul>
+            </section>
 
-        <section>
-            <h2>What is Wine Runner Suite?</h2>
-            <p>Wine Runner Suite simplifies running Windows applications and games on Debian, Ubuntu, and their derivatives. It provides:</p>
-            <ul>
-                <li>A unified <code>wine-runner</code> command-line tool.</li>
-                <li>Automatic Wine prefix initialization with essential components (corefonts, vcrun2022, and an attempt to install Microsoft Edge WebView2 via Winetricks).</li>
-                <li>Easy installation of <code>.exe</code> and <code>.msi</code> files, with an option to auto-run the application post-install when using the <code>--install</code> flag.</li>
-                <li>An offer to create Linux desktop shortcuts for applications installed via the <code>--install</code> mode.</li>
-                <li>Configuration via <code>/etc/wine-runner/wine-runner.conf</code> for CPU affinity and additional Winetricks verbs.</li>
-                <li>Double-click integration for <code>.exe</code> and <code>.msi</code> files for intuitive use.</li>
-            </ul>
-        </section>
+            <section id="usage">
+                <h2>Basic Usage</h2>
+                <p>Once installed, you can use it from the command line:</p>
+                <p><strong>Run an existing application:</strong></p>
+                <div class="usage-example-block"><pre class="usage-example">wine-runner /path/to/your/application.exe</pre></div>
 
-        <section>
-            <h2>Basic Usage</h2>
-            <p>Once installed, you can use it from the command line:</p>
-            <p><strong>Run an existing application:</strong></p>
-            <div class="command-block">
-                <p class="usage-example" id="usageCmdRun">wine-runner /path/to/your/application.exe</p>
-                <button class="copy-button" onclick="copyToClipboard('usageCmdRun')">Copy Command</button>
-            </div>
-            <p><strong>Install an application (attempts to run post-install & offers shortcut):</strong></p>
-            <div class="command-block">
-                <p class="usage-example" id="usageCmdInstallExe">wine-runner --install /path/to/your/setup.exe</p>
-                <button class="copy-button" onclick="copyToClipboard('usageCmdInstallExe')">Copy Command</button>
-            </div>
-            <div class="command-block">
-                <p class="usage-example" id="usageCmdInstallMsi">wine-runner --install /path/to/your/installer.msi</p>
-                <button class="copy-button" onclick="copyToClipboard('usageCmdInstallMsi')">Copy Command</button>
-            </div>
-            <p>Alternatively, simply double-click <code>.exe</code> or <code>.msi</code> files in your file manager!</p>
-            <p>For more options, run:</p>
-            <div class="command-block">
-                <p class="usage-example" id="usageCmdHelp">wine-runner --help</p>
-                <button class="copy-button" onclick="copyToClipboard('usageCmdHelp')">Copy Command</button>
-            </div>
-        </section>
+                <p><strong>Install an application (attempts to run post-install & offers shortcut):</strong></p>
+                <div class="usage-example-block"><pre class="usage-example">wine-runner --install /path/to/your/setup.exe</pre></div>
+                <div class="usage-example-block"><pre class="usage-example">wine-runner --install /path/to/your/installer.msi</pre></div>
+                
+                <p>Alternatively, simply double-click <code>.exe</code> or <code>.msi</code> files in your file manager!</p>
+                <p>For more options, run:</p>
+                <div class="usage-example-block"><pre class="usage-example">wine-runner --help</pre></div>
+            </section>
 
-        <section>
-            <h2>License & Disclaimer</h2>
-            <p>Wine Runner Suite (this installer script and the packaged helper tools) is developed by tapelu-io and is licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT License</a>.</p>
-            <p class="disclaimer">This software facilitates the installation and use of third-party software such as Wine, Winetricks, Microsoft Edge WebView2 (via Winetricks), and various Windows applications. These third-party components are subject to their own licenses and terms of service. Wine Runner Suite does not bundle or redistribute these components directly but assists in their setup within a Wine environment.</p>
-        </section>
+            <section id="license">
+                <h2>License & Disclaimer</h2>
+                <p>Wine Runner Suite (this installer script and the packaged helper tools) is developed by tapelu-io and is licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT License</a>.</p>
+                <p>This software facilitates the installation and use of third-party software. These components are subject to their own licenses. Wine Runner Suite does not bundle or redistribute them but assists in their setup within a Wine environment.</p>
+            </section>
+        </main>
         
         <footer>
-            <p>Wine Runner Suite - Project code & releases on <a href="https://github.com/tapelu-io/debivi" target="_blank" rel="noopener noreferrer">GitHub (debivi)</a>.</p>
-            <p>This installation page is hosted at <a href="https://github.com/tapelu-io/tapelu-io.github.io" target="_blank" rel="noopener noreferrer">tapelu-io.github.io</a>.</p>
+            <p>Wine Runner Suite © 2024 tapelu-io. Project code & releases on <a href="https://github.com/tapelu-io/debivi" target="_blank" rel="noopener noreferrer">GitHub (debivi)</a>.</p>
+            <p>This page is hosted on <a href="https://github.com/tapelu-io/tapelu-io.github.io" target="_blank" rel="noopener noreferrer">GitHub Pages</a>.</p>
         </footer>
     </div>
 
     <script>
-        function copyToClipboard(elementId) {
-            const textToCopy = document.getElementById(elementId).innerText;
-            // For modern browsers:
+        const copyButton = document.getElementById('copyBtnLatest');
+        const installCommandText = document.getElementById('installCmdLatest').innerText;
+        const iconCopy = document.getElementById('iconCopy');
+        const iconCopied = document.getElementById('iconCopied');
+        const copyBtnText = document.getElementById('copyBtnText');
+
+        copyButton.addEventListener('click', () => {
+            const textToCopy = installCommandText; // Already includes the "$ " prefix if you want it, or remove if not.
+                                                 // For user experience, copying just the command without "$ " is often better.
+            const commandOnly = textToCopy.startsWith('$ ') ? textToCopy.substring(2) : textToCopy;
+
+
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(textToCopy.startsWith('$ ') ? textToCopy.substring(2) : textToCopy)
-                    .then(() => {
-                        alert('Command copied to clipboard!');
-                    })
+                navigator.clipboard.writeText(commandOnly)
+                    .then(() => showCopiedFeedback())
                     .catch(err => {
                         console.warn('Failed to copy with navigator.clipboard: ', err);
-                        fallbackCopyTextToClipboard(textToCopy); // Fallback for older browsers or if permission denied
+                        fallbackCopyTextToClipboard(commandOnly); 
                     });
-            } else { // Fallback for older browsers
-                fallbackCopyTextToClipboard(textToCopy);
+            } else { 
+                fallbackCopyTextToClipboard(commandOnly);
             }
+        });
+
+        function showCopiedFeedback() {
+            copyButton.classList.add('copied');
+            iconCopy.style.display = 'none';
+            iconCopied.style.display = 'inline-block';
+            copyBtnText.textContent = 'Copied!';
+
+            setTimeout(() => {
+                copyButton.classList.remove('copied');
+                iconCopy.style.display = 'inline-block';
+                iconCopied.style.display = 'none';
+                copyBtnText.textContent = 'Copy';
+            }, 2000);
         }
 
         function fallbackCopyTextToClipboard(text) {
             const textArea = document.createElement("textarea");
-            // Remove leading "$ " if present from shell commands
-            textArea.value = text.startsWith('$ ') ? text.substring(2) : text; 
-            
-            // Avoid scrolling to bottom
+            textArea.value = text; 
+            textArea.style.position = "fixed"; // Prevent scrolling to bottom of page in MS Edge.
             textArea.style.top = "0";
             textArea.style.left = "0";
-            textArea.style.position = "fixed";
+            textArea.style.opacity = "0"; // Hide the textarea
 
             document.body.appendChild(textArea);
             textArea.focus();
@@ -137,13 +359,13 @@
             try {
                 const successful = document.execCommand('copy');
                 if (successful) {
-                    alert('Command copied to clipboard!');
+                    showCopiedFeedback();
                 } else {
                     alert('Failed to copy command. Please copy manually.');
                 }
             } catch (err) {
                 alert('Failed to copy command. Please copy manually.');
-                console.warn('Fallback copy failed: ', err);
+                console.error('Fallback: Oops, unable to copy', err);
             }
             document.body.removeChild(textArea);
         }
