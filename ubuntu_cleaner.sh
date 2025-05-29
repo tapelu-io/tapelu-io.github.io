@@ -309,7 +309,7 @@ install_dependencies
 if ! zenity --warning \
     --title="Ubuntu Cleaner - IMPORTANT CAUTION!" \
     --text="This script can perform significant cleaning actions on your system.\n\n- <b>Review each option carefully</b> in the next step before selecting.\n- Some actions, if misused, could lead to data loss or system issues.\n- It is <b>STRONGLY recommended to have backups</b> of important data before proceeding.\n\nAre you sure you want to continue?" \
-    --width=550 --height=250 --ok-label="Proceed with Caution" --cancel-label="Exit"; then
+    --width=550 --height=250 --ok-label="Proceed with Caution"; then # <-- MODIFIED: Removed --cancel-label
     exit 0
 fi
 
@@ -393,9 +393,6 @@ SUMMARY_MSG="✅ Selected cleanup tasks complete."
 # Check if large_files task was run to remind about the log file
 if [[ " ${SELECTED_TASKS[*]} " =~ " large_files " ]]; then
     # Find the most recent large-files-scan log
-    # This assumes the log was created if the task ran, even if empty.
-    # A more robust way would be to get the log_file variable from the function if possible,
-    # or just use a generic message.
     LATEST_LARGE_FILE_LOG=$(ls -t "$HOME"/large-files-scan-*.log 2>/dev/null | head -n 1)
     if [ -n "$LATEST_LARGE_FILE_LOG" ] && [ -s "$LATEST_LARGE_FILE_LOG" ]; then
         SUMMARY_MSG+="\n\nReview <b>$LATEST_LARGE_FILE_LOG</b> for any large files you might want to manually delete."
