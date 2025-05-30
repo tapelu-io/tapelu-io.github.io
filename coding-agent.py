@@ -62,7 +62,7 @@ class SuperAIAgent:
         elif model_choice == "gemini":
             self.api_model = "gemini"
             self.api_key = self.gemini_api_key
-            self.api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+            self.api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent"
         else:
             raise ValueError(f"Invalid model choice: {model_choice}. Use 'gemini' or 'grok'.")
         logging.info(f"Selected API model: {self.api_model}")
@@ -350,6 +350,7 @@ class SuperAIAgent:
 
         try:
             headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+            logging.debug(f"{self.api_model} request payload: {json.dumps(prompt, indent=2)}")
             if self.api_model == "grok":
                 payload = {
                     "model": "grok-3",
@@ -358,17 +359,21 @@ class SuperAIAgent:
                 }
                 response = requests.post(self.api_url, json=payload, headers=headers)
                 response.raise_for_status()
-                # Parse Grok response
                 result = response.json()
+                logging.debug(f"Grok response: {json.dumps(result, indent=2)}")
                 tasks = json.loads(result["choices"][0]["message"]["content"])
                 return tasks
             else:  # Gemini
                 payload = {"contents": [{"parts": [{"text": prompt}]}]}
                 response = requests.post(f"{self.api_url}?key={self.api_key}", json=payload, headers=headers)
                 response.raise_for_status()
-                # Parse Gemini response
                 result = response.json()
-                tasks = json.loads(result["candidates"][0]["content"]["parts"][0]["text"])
+                logging.debug(f"Gemini response: {json.dumps(result, indent=2)}")
+                try:
+                    tasks = json.loads(result["candidates"][0]["content"]["parts"][0]["text"])
+                except (KeyError, json.JSONDecodeError) as e:
+                    logging.error(f"Failed to parse Gemini response: {e}")
+                    return {"tasks": []}
                 return tasks
         except requests.RequestException as e:
             logging.error(f"{self.api_model} API request failed: {e}")
@@ -867,7 +872,7 @@ class SuperAIAgent:
 
 def main():
     # Replace with your API keys
-    GEMINI_API_KEY = "your-gemini-api-key"  # Obtain from Gemini provider
+    GEMINI_API_KEY = "your-gemini-api-key"  # Obtain from Google Cloud Console
     XAI_API_KEY = "your-xai-api-key"        # Obtain from https://x.ai/api
 
     agent = SuperAIAgent(GEMINI_API_KEY, XAI_API_KEY)
@@ -876,4 +881,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-  
+    
