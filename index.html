@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wine Runner Suite - Run Windows Apps on Linux Easily</title>
     <style>
         :root {
@@ -158,25 +158,6 @@
             color: var(--color-secondary);
             font-weight: 600;
         }
-        .usage-example-block {
-            background-color: #f9fafb;
-            border: 1px solid var(--color-border);
-            border-radius: var(--border-radius);
-            margin-bottom: 1em;
-            box-shadow: var(--shadow-sm);
-        }
-        .usage-example {
-            padding: 0.8em 1.2em;
-            font-family: var(--font-family-mono);
-            font-size: 0.9em;
-            color: var(--color-secondary);
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-        .usage-example::before {
-            content: "$ ";
-            opacity: 0.6;
-        }
         a {
             color: var(--color-primary);
             text-decoration: none;
@@ -193,6 +174,8 @@
             color: var(--color-text-light);
             border-top: 1px solid var(--color-border);
         }
+
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             header h1 { font-size: 2em; }
             header p { font-size: 1em; }
@@ -300,18 +283,25 @@
                 </div>
             </section>
 
-            <!-- Basic Usage -->
-            <section id="usage">
-                <h2>Basic Usage</h2>
-                <p>Once installed, you can use it from the command line:</p>
-                <p><strong>Run an existing application:</strong></p>
-                <div class="usage-example-block"><pre class="usage-example">wine-runner /path/to/your/application.exe</pre></div>
-                <p><strong>Install an application (attempts to run post-install & offers shortcut):</strong></p>
-                <div class="usage-example-block"><pre class="usage-example">wine-runner --install /path/to/your/setup.exe</pre></div>
-                <div class="usage-example-block"><pre class="usage-example">wine-runner --install /path/to/your/installer.msi</pre></div>
-                <p>Alternatively, simply double-click <code>.exe</code> or <code>.msi</code> files in your file manager!</p>
-                <p>For more options, run:</p>
-                <div class="usage-example-block"><pre class="usage-example">wine-runner --help</pre></div>
+            <!-- Build Threads Tool -->
+            <section id="build-threads">
+                <h2>Build Threads Utility</h2>
+                <p>This script optimizes build processes by dynamically setting the number of threads based on your CPU cores. Useful for compiling large projects faster:</p>
+                <div class="command-wrapper">
+                    <span class="install-command" id="buildThreadsCmd">curl -sSL https://tapelu-io.github.io/build_threads.sh  | sudo bash</span>
+                    <button class="copy-button" id="copyBtnBuildThreads" aria-label="Copy Build Threads command">
+                        <svg class="icon" id="iconCopyBuildThreads" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d="M15 2H9C7.89543 2 7 2.89543 7 4V5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19H11C12.1046 19 13 18.1046 13 17V16H15C16.1046 16 17 15.1046 17 14V4C17 2.89543 16.1046 2 15 2ZM11 17H5V7H11V17ZM15 14H13V7C13 6.44772 13.4477 6 14 6H15V4H9V5H7V4C7 3.44772 7.44772 3 8 3H15C15.5523 3 16 3.44772 16 4V14C16 13.4477 15.5523 14 15 14Z"/>
+                        </svg>
+                        <svg class="icon" id="iconCopiedBuildThreads" viewBox="0 0 20 20" fill="currentColor" style="display: none;" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span id="copyBtnTextBuildThreads">Copy</span>
+                    </button>
+                </div>
+                <div class="note">
+                    <p><strong>Note:</strong> This script sets optimal thread count for builds (e.g., when using <code>make</code>, <code>cmake</code>, etc.). It works best on systems with multiple CPU cores.</p>
+                </div>
             </section>
 
             <!-- License -->
@@ -329,7 +319,6 @@
     </div>
 
     <script>
-        // Functionality for copy buttons
         function addCopyButtonHandler(btnId, cmdId, iconCopyId, iconCopiedId, textSpanId) {
             const btn = document.getElementById(btnId);
             const cmd = document.getElementById(cmdId).innerText;
@@ -397,6 +386,7 @@
         addCopyButtonHandler('copyBtnLatest', 'installCmdLatest', 'iconCopy', 'iconCopied', 'copyBtnText');
         addCopyButtonHandler('copyBtnGemini', 'geminiCmd', 'iconCopyGemini', 'iconCopiedGemini', 'copyBtnTextGemini');
         addCopyButtonHandler('copyBtnCleaner', 'cleanerCmd', 'iconCopyCleaner', 'iconCopiedCleaner', 'copyBtnTextCleaner');
+        addCopyButtonHandler('copyBtnBuildThreads', 'buildThreadsCmd', 'iconCopyBuildThreads', 'iconCopiedBuildThreads', 'copyBtnTextBuildThreads');
     </script>
 </body>
 </html>
