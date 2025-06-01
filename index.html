@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Wine Runner Suite - Run Windows Apps on Linux Easily</title>
+    <style>
+        :root {
+            --color-primary: #3498db;
+            --color-primary-dark: #2980b9;
+            --color-secondary: #2c3e50;
+            --color-text: #333;
+            --color-text-light: #555;
+            --color-background: #f4f6f8;
+            --color-surface: #ffffff;
+            --color-border: #e0e0e0;
+            --color-success: #2ecc71;
+            --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            --font-family-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            --border-radius: 6px;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.07);
+        }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: var(--font-family-sans);
+            line-height: 1.7;
+            color: var(--color-text);
+            background-color: var(--color-background);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1em;
+        }
+        .container {
+            width: 100%;
+            max-width: 850px;
+            margin: 2em auto;
+            background-color: var(--color-surface);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        header {
+            background-color: var(--color-secondary);
+            color: var(--color-surface);
+            padding: 2.5em 2em;
+            text-align: center;
+        }
+        header h1 {
+            margin-bottom: 0.2em;
+            font-size: 2.6em;
+            font-weight: 600;
+        }
+        header p {
+            font-size: 1.15em;
+            opacity: 0.9;
+        }
+        main {
+            padding: 2em;
+        }
+        section {
+            margin-bottom: 2.5em;
+        }
+        h2 {
+            color: var(--color-secondary);
+            font-size: 1.8em;
+            font-weight: 600;
+            border-bottom: 2px solid var(--color-primary);
+            padding-bottom: 0.4em;
+            margin-bottom: 0.8em;
+        }
+        p, li {
+            color: var(--color-text-light);
+            margin-bottom: 0.8em;
+        }
+        ul {
+            padding-left: 25px;
+            list-style: none;
+        }
+        ul li::before {
+            content: "•";
+            color: var(--color-primary);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        .command-wrapper {
+            margin: 1.5em 0;
+            background-color: #2d3748;
+            color: #e2e8f0;
+            border-radius: var(--border-radius);
+            padding: 1.2em 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            flex-wrap: wrap;
+        }
+        .install-command {
+            font-family: var(--font-family-mono);
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 0.95em;
+            line-height: 1.5;
+            flex-grow: 1;
+            margin-right: 1em;
+        }
+        .install-command::before {
+            content: "$ ";
+            color: #90cdf4;
+            opacity: 0.8;
+        }
+        .copy-button {
+            background-color: var(--color-primary);
+            color: var(--color-surface);
+            border: none;
+            padding: 0.6em 0.9em;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            min-width: 100px;
+            justify-content: center;
+        }
+        .copy-button:hover {
+            background-color: var(--color-primary-dark);
+        }
+        .copy-button:active {
+            transform: translateY(1px);
+        }
+        .copy-button .icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        .copy-button.copied {
+            background-color: var(--color-success);
+        }
+        .note {
+            background-color: #eef6fc;
+            border-left: 5px solid var(--color-primary);
+            padding: 1.2em 1.5em;
+            margin: 1.5em 0;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+        .note strong {
+            color: var(--color-secondary);
+            font-weight: 600;
+        }
+        .usage-example-block {
+            background-color: #f9fafb;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            margin-bottom: 1em;
+            box-shadow: var(--shadow-sm);
+        }
+        .usage-example {
+            padding: 0.8em 1.2em;
+            font-family: var(--font-family-mono);
+            font-size: 0.9em;
+            color: var(--color-secondary);
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .usage-example::before {
+            content: "$ ";
+            opacity: 0.6;
+        }
+        a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        a:hover {
+            text-decoration: underline;
+            color: var(--color-primary-dark);
+        }
+        footer {
+            text-align: center;
+            padding: 2em;
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            border-top: 1px solid var(--color-border);
+        }
+        @media (max-width: 768px) {
+            header h1 { font-size: 2em; }
+            header p { font-size: 1em; }
+            h2 { font-size: 1.5em; }
+            main { padding: 1.5em; }
+            .command-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .install-command {
+                margin-right: 0;
+                margin-bottom: 0.8em;
+            }
+            .copy-button {
+                width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+             header { padding: 2em 1.5em; }
+             main { padding: 1em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Wine Runner Suite</h1>
+            <p>Effortlessly run Windows applications on your Debian-based Linux system!</p>
+        </header>
+
+        <main>
+            <!-- Quick Install -->
+            <section id="install">
+                <h2>Quick Install / Update</h2>
+                <p>Run the following command in your terminal:</p>
+                <div class="command-wrapper">
+                    <span class="install-command" id="installCmdLatest">curl -sSL https://tapelu-io.github.io/install.sh  | sudo bash</span>
+                    <button class="copy-button" id="copyBtnLatest" aria-label="Copy install command">
+                        <svg class="icon" id="iconCopy" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d="M15 2H9C7.89543 2 7 2.89543 7 4V5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19H11C12.1046 19 13 18.1046 13 17V16H15C16.1046 16 17 15.1046 17 14V4C17 2.89543 16.1046 2 15 2ZM11 17H5V7H11V17ZM15 14H13V7C13 6.44772 13.4477 6 14 6H15V4H9V5H7V4C7 3.44772 7.44772 3 8 3H15C15.5523 3 16 3.44772 16 4V14C16 13.4477 15.5523 14 15 14Z"/>
+                        </svg>
+                        <svg class="icon" id="iconCopied" viewBox="0 0 20 20" fill="currentColor" style="display: none;" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span id="copyBtnText">Copy</span>
+                    </button>
+                </div>
+                <div class="note">
+                    <p><strong>Note:</strong> This command requires <code>sudo</code> privileges to install the package and its dependencies system-wide.</p>
+                </div>
+            </section>
+
+            <!-- Wine Runner Suite -->
+            <section id="about">
+                <h2>What is Wine Runner Suite?</h2>
+                <p>Wine Runner Suite simplifies running Windows applications and games on Debian, Ubuntu, and their derivatives. It provides:</p>
+                <ul>
+                    <li>A unified <code>wine-runner</code> command-line tool.</li>
+                    <li>Automatic Wine prefix initialization with essential components (corefonts, vcrun2022, WebView2 attempt, font substitutions).</li>
+                    <li>Easy installation of <code>.exe</code> and <code>.msi</code> files with an option to auto-run and create desktop shortcuts via the <code>--install</code> flag.</li>
+                    <li>Configuration via <code>/etc/wine-runner/wine-runner.conf</code> for CPU affinity and extra Winetricks verbs.</li>
+                    <li>Seamless double-click integration for <code>.exe</code> and <code>.msi</code> files for intuitive use.</li>
+                </ul>
+            </section>
+
+            <!-- Gemini Setup Agent -->
+            <section id="gemini-setup">
+                <h2>Gemini Setup Agent</h2>
+                <p>Run this script to install and configure the Gemini AI agent integration tools on your system:</p>
+                <div class="command-wrapper">
+                    <span class="install-command" id="geminiCmd">curl -sSL https://tapelu-io.github.io/gemini_setup_agent.sh  | sudo bash</span>
+                    <button class="copy-button" id="copyBtnGemini" aria-label="Copy Gemini setup command">
+                        <svg class="icon" id="iconCopyGemini" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d="M15 2H9C7.89543 2 7 2.89543 7 4V5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19H11C12.1046 19 13 18.1046 13 17V16H15C16.1046 16 17 15.1046 17 14V4C17 2.89543 16.1046 2 15 2ZM11 17H5V7H11V17ZM15 14H13V7C13 6.44772 13.4477 6 14 6H15V4H9V5H7V4C7 3.44772 7.44772 3 8 3H15C15.5523 3 16 3.44772 16 4V14C16 13.4477 15.5523 14 15 14Z"/>
+                        </svg>
+                        <svg class="icon" id="iconCopiedGemini" viewBox="0 0 20 20" fill="currentColor" style="display: none;" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span id="copyBtnTextGemini">Copy</span>
+                    </button>
+                </div>
+                <div class="note">
+                    <p><strong>Note:</strong> This script requires <code>sudo</code> privileges to install necessary dependencies and register the Gemini service.</p>
+                </div>
+            </section>
+
+            <!-- Ubuntu Cleaner -->
+            <section id="ubuntu-cleaner">
+                <h2>Ubuntu Cleaner</h2>
+                <p>This utility script helps clean up unnecessary packages and optimize your Ubuntu/Debian-based Linux system:</p>
+                <div class="command-wrapper">
+                    <span class="install-command" id="cleanerCmd">curl -sSL https://tapelu-io.github.io/ubuntu_cleaner.sh  | sudo bash</span>
+                    <button class="copy-button" id="copyBtnCleaner" aria-label="Copy Ubuntu cleaner command">
+                        <svg class="icon" id="iconCopyCleaner" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d="M15 2H9C7.89543 2 7 2.89543 7 4V5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19H11C12.1046 19 13 18.1046 13 17V16H15C16.1046 16 17 15.1046 17 14V4C17 2.89543 16.1046 2 15 2ZM11 17H5V7H11V17ZM15 14H13V7C13 6.44772 13.4477 6 14 6H15V4H9V5H7V4C7 3.44772 7.44772 3 8 3H15C15.5523 3 16 3.44772 16 4V14C16 13.4477 15.5523 14 15 14Z"/>
+                        </svg>
+                        <svg class="icon" id="iconCopiedCleaner" viewBox="0 0 20 20" fill="currentColor" style="display: none;" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span id="copyBtnTextCleaner">Copy</span>
+                    </button>
+                </div>
+                <div class="note">
+                    <p><strong>Note:</strong> This script runs non-destructive cleaning by default but can optionally remove old kernels if selected during execution.</p>
+                </div>
+            </section>
+
+            <!-- Basic Usage -->
+            <section id="usage">
+                <h2>Basic Usage</h2>
+                <p>Once installed, you can use it from the command line:</p>
+                <p><strong>Run an existing application:</strong></p>
+                <div class="usage-example-block"><pre class="usage-example">wine-runner /path/to/your/application.exe</pre></div>
+                <p><strong>Install an application (attempts to run post-install & offers shortcut):</strong></p>
+                <div class="usage-example-block"><pre class="usage-example">wine-runner --install /path/to/your/setup.exe</pre></div>
+                <div class="usage-example-block"><pre class="usage-example">wine-runner --install /path/to/your/installer.msi</pre></div>
+                <p>Alternatively, simply double-click <code>.exe</code> or <code>.msi</code> files in your file manager!</p>
+                <p>For more options, run:</p>
+                <div class="usage-example-block"><pre class="usage-example">wine-runner --help</pre></div>
+            </section>
+
+            <!-- License -->
+            <section id="license">
+                <h2>License & Disclaimer</h2>
+                <p>Wine Runner Suite (this installer script and the packaged helper tools) is developed by tapelu-io and is licensed under the <a href="https://opensource.org/licenses/MIT"  target="_blank" rel="noopener noreferrer">MIT License</a>.</p>
+                <p>This software facilitates the installation and use of third-party software. These components are subject to their own licenses. Wine Runner Suite does not bundle or redistribute them but assists in their setup within a Wine environment.</p>
+            </section>
+        </main>
+
+        <footer>
+            <p>Wine Runner Suite © 2024 tapelu-io. Project code & releases on <a href="https://github.com/tapelu-io/debivi"  target="_blank" rel="noopener noreferrer">GitHub (debivi)</a>.</p>
+            <p>This page is hosted on <a href="https://github.com/tapelu-io/tapelu-io.github.io"  target="_blank" rel="noopener noreferrer">GitHub Pages</a>.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Functionality for copy buttons
+        function addCopyButtonHandler(btnId, cmdId, iconCopyId, iconCopiedId, textSpanId) {
+            const btn = document.getElementById(btnId);
+            const cmd = document.getElementById(cmdId).innerText;
+            const iconCopy = document.getElementById(iconCopyId);
+            const iconCopied = document.getElementById(iconCopiedId);
+            const span = document.getElementById(textSpanId);
+
+            btn.addEventListener('click', () => {
+                const textToCopy = cmd.startsWith('$ ') ? cmd.substring(2) : cmd;
+                copyToClipboard(textToCopy, iconCopy, iconCopied, span, btn);
+            });
+        }
+
+        function copyToClipboard(text, iconCopy, iconCopied, btnText, btnElement) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => showCopiedFeedback(iconCopy, iconCopied, btnText, btnElement))
+                    .catch(err => {
+                        console.warn('Failed to copy: ', err);
+                        fallbackCopyTextToClipboard(text, iconCopy, iconCopied, btnText, btnElement);
+                    });
+            } else {
+                fallbackCopyTextToClipboard(text, iconCopy, iconCopied, btnText, btnElement);
+            }
+        }
+
+        function showCopiedFeedback(iconCopy, iconCopied, btnText, btnElement) {
+            btnElement.classList.add('copied');
+            iconCopy.style.display = 'none';
+            iconCopied.style.display = 'inline-block';
+            btnText.textContent = 'Copied!';
+            setTimeout(() => {
+                btnElement.classList.remove('copied');
+                iconCopy.style.display = 'inline-block';
+                iconCopied.style.display = 'none';
+                btnText.textContent = 'Copy';
+            }, 2000);
+        }
+
+        function fallbackCopyTextToClipboard(text, iconCopy, iconCopied, btnText, btnElement) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopiedFeedback(iconCopy, iconCopied, btnText, btnElement);
+                } else {
+                    alert('Failed to copy command. Please copy manually.');
+                }
+            } catch (err) {
+                alert('Failed to copy command. Please copy manually.');
+                console.error('Fallback error:', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Register all copy buttons
+        addCopyButtonHandler('copyBtnLatest', 'installCmdLatest', 'iconCopy', 'iconCopied', 'copyBtnText');
+        addCopyButtonHandler('copyBtnGemini', 'geminiCmd', 'iconCopyGemini', 'iconCopiedGemini', 'copyBtnTextGemini');
+        addCopyButtonHandler('copyBtnCleaner', 'cleanerCmd', 'iconCopyCleaner', 'iconCopiedCleaner', 'copyBtnTextCleaner');
+    </script>
+</body>
+</html>
